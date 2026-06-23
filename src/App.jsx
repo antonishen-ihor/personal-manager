@@ -76,6 +76,34 @@ export default function App() {
     setState((s) => ({ ...s, tasks: s.tasks.filter((t) => t.id !== id) }))
   }
 
+  // --- Резервна копія ---
+  function exportData() {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `проєкти-${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  function importData(file) {
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const parsed = normalizeState(JSON.parse(reader.result))
+        if (!parsed) throw new Error('bad')
+        if (confirm('Замінити поточні дані вмістом файлу?')) {
+          setState(parsed)
+          setActive({ type: 'project', id: null })
+        }
+      } catch {
+        alert('Не вдалося прочитати файл резервної копії.')
+      }
+    }
+    reader.readAsText(file)
+  }
+
   const progress = useMemo(() => {
     const total = tasks.length
     const done = tasks.filter((t) => t.status === 'done').length
@@ -93,6 +121,8 @@ export default function App() {
         onSelectProject={(id) => setActive({ type: 'project', id })}
         onSelectAll={() => setActive({ type: 'all', id: null })}
         onNewProject={() => setEditingProject({})}
+        onExport={exportData}
+        onImport={importData}
         progress={progress}
       />
 

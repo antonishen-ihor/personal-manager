@@ -135,6 +135,16 @@ button { font-family: inherit; cursor: pointer; }
 .mini-progress { height: 6px; background: var(--hairline); border-radius: var(--radius); overflow: hidden; }
 .mini-progress-bar { height: 100%; background: var(--primary); border-radius: var(--radius); transition: width 0.4s; }
 .mini-progress-label { display: block; margin-top: 8px; font-size: 12.5px; color: var(--dove); }
+.data-actions { display: flex; gap: 6px; margin-top: 12px; }
+.data-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  flex: 1; justify-content: center;
+  border: 1px solid var(--hairline); background: transparent;
+  border-radius: var(--radius-sm); padding: 7px 8px;
+  font: inherit; font-size: 12px; font-weight: 475; color: var(--slate);
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.data-link:hover { background: var(--bone); color: var(--primary); border-color: var(--primary); }
 
 .content { padding: 40px 48px; overflow-y: auto; }
 .view { max-width: 1100px; margin: 0 auto; }

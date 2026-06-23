@@ -1,4 +1,5 @@
-import { Calendar, StatsReport, Plus, List } from 'iconoir-react'
+import { useRef } from 'react'
+import { Calendar, StatsReport, Plus, List, Download, Upload } from 'iconoir-react'
 import { isDone } from '../lib/status.js'
 
 const OVERVIEW = [
@@ -6,7 +7,8 @@ const OVERVIEW = [
   { id: 'stats', label: 'Статистика', Icon: StatsReport },
 ]
 
-export default function Sidebar({ projects, tasks, active, selectedId, onSelectView, onSelectProject, onSelectAll, onNewProject, progress }) {
+export default function Sidebar({ projects, tasks, active, selectedId, onSelectView, onSelectProject, onSelectAll, onNewProject, onExport, onImport, progress }) {
+  const fileRef = useRef(null)
   return (
     <aside className="sidebar">
       <div className="brand">
@@ -73,6 +75,25 @@ export default function Sidebar({ projects, tasks, active, selectedId, onSelectV
         <span className="mini-progress-label">
           Виконано {progress.done}/{progress.total} завдань
         </span>
+        <div className="data-actions">
+          <button className="data-link" onClick={onExport} title="Зберегти резервну копію">
+            <Download width={14} height={14} /> Експорт
+          </button>
+          <button className="data-link" onClick={() => fileRef.current?.click()} title="Завантажити з файлу">
+            <Upload width={14} height={14} /> Імпорт
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/json"
+            hidden
+            onChange={(e) => {
+              const f = e.target.files?.[0]
+              e.target.value = ''
+              if (f) onImport(f)
+            }}
+          />
+        </div>
       </div>
     </aside>
   )
