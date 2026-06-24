@@ -1,8 +1,9 @@
 import { useRef } from 'react'
-import { Calendar, StatsReport, Plus, List, Download, Upload } from 'iconoir-react'
+import { Calendar, StatsReport, Plus, List, Download, Upload, TaskList } from 'iconoir-react'
 import { isDone } from '../lib/status.js'
 
 const OVERVIEW = [
+  { id: 'tasks', label: 'Таски', Icon: TaskList },
   { id: 'calendar', label: 'Календар', Icon: Calendar },
   { id: 'stats', label: 'Статистика', Icon: StatsReport },
 ]
