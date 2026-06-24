@@ -2,8 +2,27 @@ import { useState } from 'react'
 import { Plus, Check, Xmark } from 'iconoir-react'
 import { daysUntil, deadlineLabel } from '../lib/dates.js'
 
-export default function PersonalTasksView({ todos, onAdd, onUpdate, onDelete }) {
+function ProjectPicker({ projects, value, onChange }) {
+  const proj = projects.find((p) => p.id === value)
+  return (
+    <label className="todo-project">
+      <span
+        className="todo-project-dot"
+        style={proj ? { background: proj.color } : { background: 'transparent', boxShadow: 'inset 0 0 0 1px var(--hairline)' }}
+      />
+      <select value={value} onChange={(e) => onChange(e.target.value)}>
+        <option value="">Без проєкту</option>
+        {projects.map((p) => (
+          <option key={p.id} value={p.id}>{p.name}</option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
+export default function PersonalTasksView({ todos, projects, onAdd, onUpdate, onDelete }) {
   const [title, setTitle] = useState('')
+  const [projectId, setProjectId] = useState('')
 
   const open = todos.filter((t) => !t.done).length
   const done = todos.length - open
@@ -16,8 +35,9 @@ export default function PersonalTasksView({ todos, onAdd, onUpdate, onDelete }) 
   function submit(e) {
     e.preventDefault()
     if (!title.trim()) return
-    onAdd(title.trim())
+    onAdd(title.trim(), projectId)
     setTitle('')
+    setProjectId('')
   }
 
   return (
@@ -36,6 +56,7 @@ export default function PersonalTasksView({ todos, onAdd, onUpdate, onDelete }) 
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
+        <ProjectPicker projects={projects} value={projectId} onChange={setProjectId} />
         <button className="btn primary" type="submit"><Plus width={16} height={16} /> Додати</button>
       </form>
 
@@ -66,6 +87,8 @@ export default function PersonalTasksView({ todos, onAdd, onUpdate, onDelete }) 
                   placeholder="Назва таски"
                   onChange={(e) => onUpdate(t.id, { title: e.target.value })}
                 />
+
+                <ProjectPicker projects={projects} value={t.projectId || ''} onChange={(v) => onUpdate(t.id, { projectId: v })} />
 
                 {t.deadline && !t.done && (
                   <span className={`todo-when ${overdue ? 'overdue' : ''}`}>{deadlineLabel(t.deadline)}</span>

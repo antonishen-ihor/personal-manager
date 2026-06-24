@@ -79,8 +79,8 @@ export default function App() {
   }
 
   // --- Особисті таски ---
-  function addTodo(title) {
-    const t = { id: uid(), title, done: false, deadline: '', createdAt: Date.now() }
+  function addTodo(title, projectId = '') {
+    const t = { id: uid(), title, done: false, projectId, deadline: '', createdAt: Date.now() }
     setState((s) => ({ ...s, todos: [...(s.todos || []), t] }))
   }
 
@@ -144,7 +144,7 @@ export default function App() {
 
       <main className="content">
         {active.type === 'tasks' && (
-          <PersonalTasksView todos={todos} onAdd={addTodo} onUpdate={updateTodo} onDelete={deleteTodo} />
+          <PersonalTasksView todos={todos} projects={projects} onAdd={addTodo} onUpdate={updateTodo} onDelete={deleteTodo} />
         )}
         {active.type === 'calendar' && <CalendarView projects={projects} tasks={tasks} />}
         {active.type === 'stats' && <StatsView projects={projects} tasks={tasks} />}
