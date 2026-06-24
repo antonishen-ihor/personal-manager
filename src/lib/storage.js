@@ -40,6 +40,7 @@ export function normalizeState(state) {
       id: t.id || uid(),
       title: t.title || '',
       done: !!t.done,
+      projectId: t.projectId || '',
       deadline: t.deadline || '',
       createdAt: t.createdAt || Date.now(),
     })),
