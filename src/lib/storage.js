@@ -36,6 +36,13 @@ export function normalizeState(state) {
       photo: p.photo || '',
       createdAt: p.createdAt || Date.now(),
     })),
+    todos: (state.todos || []).map((t) => ({
+      id: t.id || uid(),
+      title: t.title || '',
+      done: !!t.done,
+      deadline: t.deadline || '',
+      createdAt: t.createdAt || Date.now(),
+    })),
     tasks: (state.tasks || []).map((t) => ({
       id: t.id,
       projectId: t.projectId,
@@ -67,7 +74,13 @@ export function seedState() {
     id: uid(), projectId, title, status, price, advance, details, deadline, createdAt: Date.now(),
     payment: advance <= 0 ? 'unpaid' : advance >= price ? 'paid' : 'advance',
   })
+  const todo = (title, done, deadline) => ({ id: uid(), title, done, deadline, createdAt: Date.now() })
   return {
+    todos: [
+      todo('Передзвонити клієнту', false, inDays(0)),
+      todo('Оплатити хостинг', false, inDays(3)),
+      todo('Записатись до стоматолога', true, ''),
+    ],
     projects: [
       {
         id: p1,

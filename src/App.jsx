@@ -4,6 +4,7 @@ import { loadState, normalizeState, saveState, seedState, uid } from './lib/stor
 import Sidebar from './components/Sidebar.jsx'
 import ProjectDetail from './components/ProjectDetail.jsx'
 import AllTasksView from './components/AllTasksView.jsx'
+import PersonalTasksView from './components/PersonalTasksView.jsx'
 import CalendarView from './components/CalendarView.jsx'
 import StatsView from './components/StatsView.jsx'
 import ProjectModal from './components/ProjectModal.jsx'
@@ -19,6 +20,7 @@ export default function App() {
   }, [state])
 
   const { projects, tasks } = state
+  const todos = state.todos || []
 
   // Який проєкт показувати: явно обраний або перший зі списку.
   const selectedId = active.type === 'project' ? (active.id ?? projects[0]?.id ?? null) : null
@@ -76,6 +78,20 @@ export default function App() {
     setState((s) => ({ ...s, tasks: s.tasks.filter((t) => t.id !== id) }))
   }
 
+  // --- Особисті таски ---
+  function addTodo(title) {
+    const t = { id: uid(), title, done: false, deadline: '', createdAt: Date.now() }
+    setState((s) => ({ ...s, todos: [...(s.todos || []), t] }))
+  }
+
+  function updateTodo(id, patch) {
+    setState((s) => ({ ...s, todos: (s.todos || []).map((t) => (t.id === id ? { ...t, ...patch } : t)) }))
+  }
+
+  function deleteTodo(id) {
+    setState((s) => ({ ...s, todos: (s.todos || []).filter((t) => t.id !== id) }))
+  }
+
   // --- Резервна копія ---
   function exportData() {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })
@@ -127,6 +143,9 @@ export default function App() {
       />
 
       <main className="content">
+        {active.type === 'tasks' && (
+          <PersonalTasksView todos={todos} onAdd={addTodo} onUpdate={updateTodo} onDelete={deleteTodo} />
+        )}
         {active.type === 'calendar' && <CalendarView projects={projects} tasks={tasks} />}
         {active.type === 'stats' && <StatsView projects={projects} tasks={tasks} />}
         {active.type === 'all' && (
