@@ -20,6 +20,53 @@ function ProjectPicker({ projects, value, onChange }) {
   )
 }
 
+function sortItems(items) {
+  return [...items].sort((a, b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1
+    return (a.deadline || '9999').localeCompare(b.deadline || '9999')
+  })
+}
+
+function TodoRow({ t, projects, onUpdate, onDelete }) {
+  const dl = daysUntil(t.deadline)
+  const overdue = !t.done && dl !== null && dl < 0
+  return (
+    <div className={`todo ${t.done ? 'done' : ''}`}>
+      <button
+        className={`checkbox ${t.done ? 'checked' : ''}`}
+        onClick={() => onUpdate(t.id, { done: !t.done })}
+        aria-label="Готово"
+      >
+        {t.done && <Check width={14} height={14} />}
+      </button>
+
+      <input
+        className="cell-input todo-title"
+        value={t.title}
+        placeholder="Назва таски"
+        onChange={(e) => onUpdate(t.id, { title: e.target.value })}
+      />
+
+      <ProjectPicker projects={projects} value={t.projectId || ''} onChange={(v) => onUpdate(t.id, { projectId: v })} />
+
+      {t.deadline && !t.done && (
+        <span className={`todo-when ${overdue ? 'overdue' : ''}`}>{deadlineLabel(t.deadline)}</span>
+      )}
+
+      <input
+        type="date"
+        className="cell-input date-input todo-date"
+        value={t.deadline || ''}
+        onChange={(e) => onUpdate(t.id, { deadline: e.target.value })}
+      />
+
+      <button className="icon-btn danger small" onClick={() => onDelete(t.id)} title="Видалити">
+        <Xmark width={15} height={15} />
+      </button>
+    </div>
+  )
+}
+
 export default function PersonalTasksView({ todos, projects, onAdd, onUpdate, onDelete }) {
   const [title, setTitle] = useState('')
   const [projectId, setProjectId] = useState('')
@@ -27,10 +74,14 @@ export default function PersonalTasksView({ todos, projects, onAdd, onUpdate, on
   const open = todos.filter((t) => !t.done).length
   const done = todos.length - open
 
-  const sorted = [...todos].sort((a, b) => {
-    if (a.done !== b.done) return a.done ? 1 : -1
-    return (a.deadline || '9999').localeCompare(b.deadline || '9999')
+  // Групи по проєктах (у порядку проєктів), наприкінці — «Без проєкту».
+  const groups = []
+  projects.forEach((p) => {
+    const items = todos.filter((t) => t.projectId === p.id)
+    if (items.length) groups.push({ key: p.id, project: p, items: sortItems(items) })
   })
+  const noProj = todos.filter((t) => !t.projectId || !projects.some((p) => p.id === t.projectId))
+  if (noProj.length) groups.push({ key: 'none', project: null, items: sortItems(noProj) })
 
   function submit(e) {
     e.preventDefault()
@@ -67,43 +118,24 @@ export default function PersonalTasksView({ todos, projects, onAdd, onUpdate, on
           <p>Додайте першу таску у поле вище.</p>
         </div>
       ) : (
-        <div className="todo-list">
-          {sorted.map((t) => {
-            const dl = daysUntil(t.deadline)
-            const overdue = !t.done && dl !== null && dl < 0
+        <div className="todo-groups">
+          {groups.map((g) => {
+            const gDone = g.items.filter((t) => t.done).length
             return (
-              <div className={`todo ${t.done ? 'done' : ''}`} key={t.id}>
-                <button
-                  className={`checkbox ${t.done ? 'checked' : ''}`}
-                  onClick={() => onUpdate(t.id, { done: !t.done })}
-                  aria-label="Готово"
-                >
-                  {t.done && <Check width={14} height={14} />}
-                </button>
-
-                <input
-                  className="cell-input todo-title"
-                  value={t.title}
-                  placeholder="Назва таски"
-                  onChange={(e) => onUpdate(t.id, { title: e.target.value })}
-                />
-
-                <ProjectPicker projects={projects} value={t.projectId || ''} onChange={(v) => onUpdate(t.id, { projectId: v })} />
-
-                {t.deadline && !t.done && (
-                  <span className={`todo-when ${overdue ? 'overdue' : ''}`}>{deadlineLabel(t.deadline)}</span>
-                )}
-
-                <input
-                  type="date"
-                  className="cell-input date-input todo-date"
-                  value={t.deadline || ''}
-                  onChange={(e) => onUpdate(t.id, { deadline: e.target.value })}
-                />
-
-                <button className="icon-btn danger small" onClick={() => onDelete(t.id)} title="Видалити">
-                  <Xmark width={15} height={15} />
-                </button>
+              <div className="todo-group" key={g.key}>
+                <div className="todo-group-head">
+                  <span
+                    className="todo-group-dot"
+                    style={g.project ? { background: g.project.color } : { background: 'transparent', boxShadow: 'inset 0 0 0 1.5px var(--hairline)' }}
+                  />
+                  <span className="todo-group-name">{g.project ? g.project.name : 'Без проєкту'}</span>
+                  <span className="todo-group-count">{gDone}/{g.items.length}</span>
+                </div>
+                <div className="todo-group-items">
+                  {g.items.map((t) => (
+                    <TodoRow key={t.id} t={t} projects={projects} onUpdate={onUpdate} onDelete={onDelete} />
+                  ))}
+                </div>
               </div>
             )
           })}
