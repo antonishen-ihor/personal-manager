@@ -392,6 +392,9 @@ button { font-family: inherit; cursor: pointer; }
 .btn.btn-danger-text:hover { background: var(--cream); border-color: var(--rust); }
 
 .add-block-wrap { padding-top: 14px; }
+.paid-block-wrap { padding-top: 14px; }
+.paid-block { background: var(--bone); }
+.paid-title { color: #15803d; }
 .add-block-title {
   font-size: 12px; font-weight: 500; letter-spacing: 0.06em;
   text-transform: uppercase; color: var(--dove); padding: 2px 8px 10px;
