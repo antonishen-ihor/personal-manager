@@ -35,6 +35,15 @@ export default function ProjectDetail({ project, tasks, onUpdateProject, onEdit,
     })
   }
 
+  // Оплачені завдання виносимо в окремий блок унизу.
+  const active = sorted.filter((t) => t.payment !== 'paid')
+  const paid = sorted.filter((t) => t.payment === 'paid')
+  const sumBy = (arr, f) => arr.reduce((s, t) => s + f(t), 0)
+  const aBudget = sumBy(active, (t) => t.price || 0)
+  const aAdvance = sumBy(active, (t) => t.advance || 0)
+  const pBudget = sumBy(paid, (t) => t.price || 0)
+  const pAdvance = sumBy(paid, (t) => t.advance || 0)
+
   return (
     <div className="project-detail" style={{ '--accent': project.color }}>
       <header className="detail-head">
@@ -74,17 +83,21 @@ export default function ProjectDetail({ project, tasks, onUpdateProject, onEdit,
             <div className="tt-empty">Ще немає завдань. Додайте перше нижче ↓</div>
           )}
 
-          {sorted.map((t) => (
+          {tasks.length > 0 && active.length === 0 && (
+            <div className="tt-empty">Усі завдання оплачені 🎉</div>
+          )}
+
+          {active.map((t) => (
             <TaskRow key={t.id} task={t} onUpdate={onUpdateTask} onDelete={onDeleteTask} />
           ))}
 
-          {tasks.length > 0 && (
+          {active.length > 0 && (
             <div className="tt-foot">
-              <span className="tt-sum-label">Σ {tasks.length} завдань</span>
+              <span className="tt-sum-label">Σ {active.length} завдань</span>
               <span />
-              <span className="num">{money(budget)}</span>
-              <span className="num">{money(advance)}</span>
-              <span className="num">{money(remaining)}</span>
+              <span className="num">{money(aBudget)}</span>
+              <span className="num">{money(aAdvance)}</span>
+              <span className="num">{money(aBudget - aAdvance)}</span>
               <span />
               <span />
               <span />
@@ -93,6 +106,28 @@ export default function ProjectDetail({ project, tasks, onUpdateProject, onEdit,
           )}
         </div>
       </div>
+
+      {paid.length > 0 && (
+        <div className="task-table-wrap paid-block-wrap">
+          <div className="task-table paid-block">
+            <div className="add-block-title paid-title">Оплачено · {paid.length}</div>
+            {paid.map((t) => (
+              <TaskRow key={t.id} task={t} onUpdate={onUpdateTask} onDelete={onDeleteTask} />
+            ))}
+            <div className="tt-foot">
+              <span className="tt-sum-label">Σ {paid.length} оплачено</span>
+              <span />
+              <span className="num">{money(pBudget)}</span>
+              <span className="num">{money(pAdvance)}</span>
+              <span className="num">{money(pBudget - pAdvance)}</span>
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="task-table-wrap add-block-wrap">
         <div className="task-table">
