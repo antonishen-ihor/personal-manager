@@ -405,14 +405,30 @@ button { font-family: inherit; cursor: pointer; }
 .todo-add { display: flex; gap: 10px; margin-bottom: 22px; }
 .todo-add .input { flex: 1; }
 
-.todo-list { display: flex; flex-direction: column; gap: 8px; }
+/* Групи по проєктах */
+.todo-groups { display: flex; flex-direction: column; gap: 18px; }
+.todo-group {
+  border: 1px solid var(--hairline); border-radius: var(--radius);
+  background: var(--surface); overflow: hidden;
+}
+.todo-group-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-bottom: 1px solid var(--hairline);
+  background: var(--bone);
+}
+.todo-group-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.todo-group-name { font-weight: 600; font-size: 15px; flex: 1; letter-spacing: 0.01em; }
+.todo-group-count { font-size: 12.5px; color: var(--dove); font-weight: 475; }
+.todo-group-items { display: flex; flex-direction: column; }
+
 .todo {
   display: flex; align-items: center; gap: 12px;
-  padding: 11px 14px; background: var(--surface);
-  border: 1px solid var(--hairline); border-radius: var(--radius);
-  transition: border-color 0.12s;
+  padding: 11px 16px; background: var(--surface);
+  border-bottom: 1px solid var(--hairline);
+  transition: background 0.12s;
 }
-.todo:hover { border-color: var(--sea-mist); }
+.todo:last-child { border-bottom: none; }
+.todo:hover { background: var(--bone); }
 .todo.done { background: var(--bone); }
 .todo.done .todo-title { color: var(--dove); }
 
